@@ -189,7 +189,11 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
             <Input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} className={`pl-10 h-12 rounded-lg ${passwordError ? 'border-red-400' : ''}`} required aria-invalid={!!passwordError} aria-describedby={passwordError ? 'password-error' : undefined} />
             {passwordError && <div id="password-error" className="mt-1 text-xs text-red-600">{passwordError}</div>}
           </div>
+<<<<<<< HEAD
           {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+=======
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+>>>>>>> 2b9e95850da4739b8669f641f192cc2583dc10d9
             {isMobile ? (
               <Input type="date" placeholder="Date of Birth" value={dateOfBirth} onChange={(e)=>setDateOfBirth(e.target.value)} className="h-12 rounded-lg" />
             ) : (
@@ -243,7 +247,11 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
               </Popover>
               {countryError && <div className="text-xs text-red-600 mt-1">{countryError}</div>}
             </div>
+<<<<<<< HEAD
           </div> */}
+=======
+          </div>
+>>>>>>> 2b9e95850da4739b8669f641f192cc2583dc10d9
           <div>
             <div className="relative">
               <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
