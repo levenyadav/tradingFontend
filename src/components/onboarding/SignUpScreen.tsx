@@ -78,8 +78,8 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
       // Move to OTP step with userId
       onNext({ id: res.userId || res.user.id, email: res.user.email })
     } catch (e: any) {
-      const details = e?.data?.details || e?.error?.details
-      const msg = Array.isArray(details) ? (details.map((d: any)=>`${d.field}: ${d.message}`).join('; ')) : (e?.message || 'Registration failed')
+      const details = e?.data?.error?.details || e?.data?.details || e?.error?.details
+      const msg = Array.isArray(details) ? (details.map((d: any)=>`${d.field}: ${d.message}`).join('; ')) : (e?.data?.error?.message || e?.message || 'Registration failed')
       if (Array.isArray(details)) {
         const p = details.find((d: any)=>String(d.field).toLowerCase()==='password' && d.message)
         if (p) setPasswordError(p.message)
