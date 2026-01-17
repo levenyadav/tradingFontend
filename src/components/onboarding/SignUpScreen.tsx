@@ -1,16 +1,10 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
-import { ArrowLeft, Mail, Lock, Phone, Gift, Check, X, Calendar as CalendarIcon } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ArrowLeft, Mail, Lock, Phone, Gift, Check, X } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Checkbox } from '../ui/checkbox'
-import { register, login } from '../../lib/api/auth'
-import { saveSession } from '../../lib/storage/session'
+import { register } from '../../lib/api/auth'
 import { validateReferralCode } from '../../lib/api/referral'
-import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover'
-import { Calendar } from '../ui/calendar'
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '../ui/command'
-import { countries, isoToFlagClass, findCountryByIso } from '../../lib/countries'
-import { useIsMobile } from '../ui/use-mobile'
 
 export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () => void; onNext: (user: any) => void; onError?: (msg: string) => void }) {
   const [email, setEmail] = useState('')
@@ -18,9 +12,6 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
-  const [dateOfBirth, setDateOfBirth] = useState('')
-  const [country, setCountry] = useState('')
-  const [countryError, setCountryError] = useState('')
   const [referralCode, setReferralCode] = useState('')
   const [referralValidating, setReferralValidating] = useState(false)
   const [referralValid, setReferralValid] = useState<boolean | null>(null)
@@ -30,43 +21,6 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
   const [isLoading, setIsLoading] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string>('')
-  const [dobOpen, setDobOpen] = useState(false)
-  const [dialCode, setDialCode] = useState('')
-  const isMobile = useIsMobile()
-  const [countryOpen, setCountryOpen] = useState(false)
-  const countryList = useMemo(() => {
-    const excludes = new Set(['AU','DE','FR','ES','IT','RU','CN','JP'])
-    const filtered = countries.filter(c => !excludes.has(c.iso))
-    const top = filtered.find(c => c.iso === 'IN')
-    const rest = filtered.filter(c => c.iso !== 'IN')
-    return top ? [top, ...rest] : filtered
-  }, [])
-
-  const normalizeCountry = (s: string) => {
-    const m: Record<string, string> = {
-      india: 'IN',
-      'united states': 'US',
-      usa: 'US',
-      us: 'US',
-      'united kingdom': 'GB',
-      uk: 'GB',
-      britain: 'GB',
-      canada: 'CA',
-      singapore: 'SG',
-      mexico: 'MX',
-      brazil: 'BR',
-      nigeria: 'NG',
-      'south africa': 'ZA',
-      indonesia: 'ID',
-      uae: 'AE',
-      'united arab emirates': 'AE',
-      'saudi arabia': 'SA'
-    }
-    const t = (s || '').trim()
-    if (t.length === 2) return t.toUpperCase()
-    const k = t.toLowerCase()
-    return m[k] || ''
-  }
 
   // Debounced referral code validation
   useEffect(() => {
@@ -114,16 +68,8 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
         setIsLoading(false)
         return
       }
-      const iso = normalizeCountry(country)
-      if (!iso) {
-        setCountryError('Enter a 2-letter ISO code (e.g., IN)')
-        setFormError('Please fix the highlighted fields')
-        setIsLoading(false)
-        return
-      }
-      setCountryError('')
       const digitsOnly = (phone || '').replace(/\D/g, '')
-      const payload: any = { email, password, firstName, lastName, phone: digitsOnly, dateOfBirth, country: iso, acceptedTerms }
+      const payload: any = { email, password, firstName, lastName, phone: digitsOnly, acceptedTerms }
       // Include referral code if provided and valid
       if (referralCode && referralCode.trim()) {
         payload.referralCode = referralCode.toUpperCase().trim()
@@ -135,8 +81,6 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
       const details = e?.data?.details || e?.error?.details
       const msg = Array.isArray(details) ? (details.map((d: any)=>`${d.field}: ${d.message}`).join('; ')) : (e?.message || 'Registration failed')
       if (Array.isArray(details)) {
-        const c = details.find((d: any)=>String(d.field).toLowerCase()==='country' && d.message)
-        if (c) setCountryError(c.message)
         const p = details.find((d: any)=>String(d.field).toLowerCase()==='password' && d.message)
         if (p) setPasswordError(p.message)
       }
@@ -171,16 +115,12 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
           </div>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            {dialCode && (
-              <span className="absolute left-10 top-1/2 -translate-y-1/2 text-gray-700 text-sm bg-white px-2 py-0.5 rounded border border-input shadow-sm pointer-events-none select-none min-w-[48px] text-center">+{dialCode}</span>
-            )}
             <Input
               type="tel"
               placeholder="Phone"
               value={phone}
               onChange={(e)=>setPhone(e.target.value.replace(/[^0-9+]/g,''))}
-              className="h-12 rounded-lg"
-              style={{ paddingLeft: dialCode ? '112px' : '40px' }}
+              className="pl-10 h-12 rounded-lg"
               aria-label="Phone number"
             />
           </div>
@@ -189,6 +129,7 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
             <Input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} className={`pl-10 h-12 rounded-lg ${passwordError ? 'border-red-400' : ''}`} required aria-invalid={!!passwordError} aria-describedby={passwordError ? 'password-error' : undefined} />
             {passwordError && <div id="password-error" className="mt-1 text-xs text-red-600">{passwordError}</div>}
           </div>
+<<<<<<< HEAD
 <<<<<<< HEAD
           {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 =======
@@ -252,6 +193,8 @@ export default function SignUpScreen({ onBack, onNext, onError }: { onBack: () =
 =======
           </div>
 >>>>>>> 2b9e95850da4739b8669f641f192cc2583dc10d9
+=======
+>>>>>>> d165d9f (fix the mobile respsoive in desktop)
           <div>
             <div className="relative">
               <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />

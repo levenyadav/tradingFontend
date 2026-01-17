@@ -274,51 +274,53 @@ function AppInner() {
       return null;
     }
     return (
-      <>
-        {currentScreen === 'welcome' && (
-          <WelcomeScreen
-            onSignIn={() => setCurrentScreen('login')}
-            onSignUp={() => setCurrentScreen('signup')}
-          />
-        )}
-        
-        {currentScreen === 'login' && (
-          <LoginScreen
-            onBack={() => setCurrentScreen('welcome')}
-            onLogin={handleLogin}
-            onSignUp={() => setCurrentScreen('signup')}
-            onForgotPassword={() => showToast('Password reset link sent to your email', 'info')}
-            onError={(message) => showToast(message, 'error')}
-          />
-        )}
+      <div className="min-h-screen bg-gray-100 flex justify-center">
+        <div className="w-full max-w-md bg-white md:shadow-2xl relative">
+          {currentScreen === 'welcome' && (
+            <WelcomeScreen
+              onSignIn={() => setCurrentScreen('login')}
+              onSignUp={() => setCurrentScreen('signup')}
+            />
+          )}
 
-        {currentScreen === 'signup' && (
-          <OnboardingFlow
-            onDeposit={() => {
-              setIsAuthenticated(true)
-              setCurrentScreen('wallet-deposit')
-              showToast('Account created. Deposit to start trading.', 'success')
-            }}
-            onSkip={() => {
-              setIsAuthenticated(true)
-              setCurrentScreen('dashboard')
-              showToast('Account created. You can deposit anytime.', 'success')
-            }}
-            onCancel={() => {
-              setCurrentScreen('login')
-            }}
-            onError={(msg) => showToast(msg, 'error')}
-          />
-        )}
+          {currentScreen === 'login' && (
+            <LoginScreen
+              onBack={() => setCurrentScreen('welcome')}
+              onLogin={handleLogin}
+              onSignUp={() => setCurrentScreen('signup')}
+              onForgotPassword={() => showToast('Password reset link sent to your email', 'info')}
+              onError={(message) => showToast(message, 'error')}
+            />
+          )}
 
-        {toast.show && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast({ ...toast, show: false })}
-          />
-        )}
-      </>
+          {currentScreen === 'signup' && (
+            <OnboardingFlow
+              onDeposit={() => {
+                setIsAuthenticated(true)
+                setCurrentScreen('wallet-deposit')
+                showToast('Account created. Deposit to start trading.', 'success')
+              }}
+              onSkip={() => {
+                setIsAuthenticated(true)
+                setCurrentScreen('dashboard')
+                showToast('Account created. You can deposit anytime.', 'success')
+              }}
+              onCancel={() => {
+                setCurrentScreen('login')
+              }}
+              onError={(msg) => showToast(msg, 'error')}
+            />
+          )}
+
+          {toast.show && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast({ ...toast, show: false })}
+            />
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -328,7 +330,8 @@ function AppInner() {
   const showBottomNav = ['dashboard', 'markets', 'portfolio', 'wallet', 'settings'].includes(currentScreen);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="w-full max-w-md bg-gray-50 md:shadow-2xl relative">
       {showTopBar && (
         <TopBar
           title={
@@ -491,7 +494,8 @@ function AppInner() {
         </div>
       )}
 
-      
+
+      </div>
     </div>
   );
 }
